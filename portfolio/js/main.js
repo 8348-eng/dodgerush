@@ -22,6 +22,7 @@ const App = {
     this.setupProjectFilters();
     this.renderExperience();
     this.setupContactForm();
+    this.setupProfilePhoto();
     this.setupBackToTop();
     this.syncGitHubData();
   },
@@ -505,5 +506,94 @@ requestAnimationFrame(gameEngine.tick);`,
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+  },
+
+  /* ==========================================================================
+     PROFILE PHOTO UPLOAD & PERSISTENCE
+     ========================================================================== */
+  setupProfilePhoto() {
+    const photoInput = document.getElementById("profile-photo-input");
+    const photoImg = document.getElementById("profile-photo-img");
+    const placeholder = document.getElementById("profile-avatar-placeholder");
+    const removeBtn = document.getElementById("remove-photo-btn");
+    const uploadBtnText = document.getElementById("upload-btn-text");
+
+    if (!photoInput || !photoImg || !placeholder) return;
+
+    // Helper to display uploaded photo
+    const showPhoto = (src) => {
+      photoImg.src = src;
+      photoImg.style.display = "block";
+      placeholder.style.display = "none";
+      if (removeBtn) removeBtn.style.display = "inline-block";
+      if (uploadBtnText) uploadBtnText.textContent = "Change Photo";
+    };
+
+    // Helper to reset to default avatar
+    const resetPhoto = () => {
+      photoImg.src = "";
+      photoImg.style.display = "none";
+      placeholder.style.display = "flex";
+      if (removeBtn) removeBtn.style.display = "none";
+      if (uploadBtnText) uploadBtnText.textContent = "Upload Your Photo";
+      photoInput.value = "";
+    };
+
+    // 1. Check for saved photo in localStorage
+    try {
+      const savedPhoto = localStorage.getItem("tulip_profile_photo");
+      if (savedPhoto) {
+        showPhoto(savedPhoto);
+      }
+    } catch (e) {
+      console.warn("Could not access localStorage for profile photo:", e);
+    }
+
+    // 2. Handle File Selection
+    photoInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        this.showToast("Please select a valid image file (PNG, JPG, WebP).");
+        return;
+      }
+
+      // Check file size (recommend < 5MB for localStorage)
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast("Image is quite large. Recommending under 5MB for smooth loading.");
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        showPhoto(dataUrl);
+
+        try {
+          localStorage.setItem("tulip_profile_photo", dataUrl);
+          this.showToast("Profile photo updated & saved successfully!");
+        } catch (err) {
+          console.warn("Storage quota exceeded, showing in session only:", err);
+          this.showToast("Photo loaded for current session!");
+        }
+      };
+
+      reader.onerror = () => {
+        this.showToast("Failed to read the image file.");
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    // 3. Handle Remove / Reset
+    if (removeBtn) {
+      removeBtn.addEventListener("click", () => {
+        try {
+          localStorage.removeItem("tulip_profile_photo");
+        } catch (e) {}
+        resetPhoto();
+        this.showToast("Profile photo reset to default avatar.");
+      });
+    }
   }
 };
