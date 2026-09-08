@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#070913">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="Dodge Rush - Fast-paced mobile-first cyber arcade runner with smooth touch and swipe controls!">
+  <title>Dodge Rush - Mobile Cyber Runner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Main 3D Perspective Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Floating In-Game HUD -->
+    <div id="hud-layer">
+      <header class="hud-top-bar">
+        <div class="hud-group-left">
+          <div class="hud-pill score-pill">
+            <span class="label">SCORE</span>
+            <span id="hud-score" class="value">0</span>
+          </div>
+          <div class="hud-pill coin-pill">
+            <span class="icon">🪙</span>
+            <span id="hud-coins" class="value">0</span>
+          </div>
+        </div>
+
+        <div class="hud-group-center">
+          <div class="hud-pill level-pill">
+            <span>LVL</span>
+            <span id="hud-level" class="value">1</span>
+          </div>
+        </div>
+
+        <div class="hud-group-right">
+          <div class="hearts-container" id="hearts-container" aria-label="Remaining Health">
+            <svg class="heart-icon" id="heart-1" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg class="heart-icon" id="heart-2" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg class="heart-icon" id="heart-3" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="hud-btn" id="btn-sound-toggle" aria-label="Toggle Sound">
+              <svg viewBox="0 0 24 24" id="sound-icon-on"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              <svg viewBox="0 0 24 24" id="sound-icon-off" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            </button>
+            <button class="hud-btn" id="btn-pause" aria-label="Pause Game">
+              <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Active Power-up indicators -->
+      <div class="powerups-bar" id="powerups-bar"></div>
+
+      <!-- Mid-screen Level-up & Speed Announcement -->
+      <div id="announcement-banner">LEVEL UP!</div>
+
+      <!-- Ergonomic Mobile Touch Controls Dock -->
+      <footer id="controls-dock">
+        <button class="control-btn btn-left" id="ctrl-left" aria-label="Move Left">
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </div>
+          <span class="btn-sub">LEFT</span>
+        </button>
+
+        <button class="control-btn btn-jump" id="ctrl-jump" aria-label="Jump">
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+          </div>
+          <span class="btn-sub">JUMP</span>
+        </button>
+
+        <button class="control-btn btn-right" id="ctrl-right" aria-label="Move Right">
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+          <span class="btn-sub">RIGHT</span>
+        </button>
+      </footer>
+    </div>
+
+    <!-- 1. Home Screen -->
+    <section class="screen-layer active" id="home-screen">
+      <div class="home-content">
+        <div class="title-container">
+          <h1 class="game-title">DODGE<br>RUSH</h1>
+          <p class="game-subtitle">CYBER HIGHWAY</p>
+        </div>
+
+        <div class="high-score-card">
+          <div class="trophy-icon">🏆</div>
+          <div class="card-info">
+            <span class="card-label">ALL-TIME BEST</span>
+            <span id="home-highscore" class="card-val">0</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-start-game">
+          <span>START GAME</span>
+          <svg style="width:24px;height:24px;fill:currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+
+        <button class="btn-secondary" id="btn-instructions">
+          <span>HOW TO PLAY</span>
+        </button>
+
+        <div class="home-meta-bar">
+          <button class="home-icon-btn" id="btn-home-mute">
+            <span id="home-mute-icon">🔊</span>
+            <span id="home-mute-text">Sound ON</span>
+          </button>
+          <button class="home-icon-btn" id="btn-home-vibe">
+            <span id="home-vibe-icon">📳</span>
+            <span id="home-vibe-text">Vibration ON</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Instructions / How To Play Modal -->
+    <div class="screen-layer" id="instructions-modal">
+      <div class="modal-card">
+        <h2 class="modal-title">HOW TO PLAY</h2>
+
+        <div class="how-to-section">
+          <h3 class="section-heading">🎮 Touch & Swipe Controls</h3>
+          <div class="guide-row">
+            <span class="guide-badge">LEFT / RIGHT</span>
+            <span class="guide-desc">Tap ◀ / ▶ buttons or swipe left/right to change lanes.</span>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge">JUMP (▲)</span>
+            <span class="guide-desc">Tap ▲ or swipe UP to jump over low barriers and grab mid-air coins!</span>
+          </div>
+        </div>
+
+        <div class="how-to-section">
+          <h3 class="section-heading">⚠️ Obstacles</h3>
+          <div class="guide-row">
+            <span class="guide-badge" style="color:var(--yellow);border-color:var(--yellow);">LOW BARRIER</span>
+            <span class="guide-desc">Jump over it OR switch lanes to avoid.</span>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge" style="color:var(--danger);border-color:var(--danger);">TALL DRONE</span>
+            <span class="guide-desc">Cannot be jumped over! Must dodge to another lane.</span>
+          </div>
+        </div>
+
+        <div class="how-to-section">
+          <h3 class="section-heading">✨ Power-Ups</h3>
+          <div class="guide-row">
+            <span class="guide-badge">🛡️ SHIELD</span>
+            <span class="guide-desc">Absorbs 1 collision safely without losing health.</span>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge">🧲 MAGNET</span>
+            <span class="guide-desc">Pulls all nearby coins into your lane.</span>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge">⚡ BOOST</span>
+            <span class="guide-desc">Hyper-speed invulnerability rush! Smash through anything.</span>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge">✖️2 COINS</span>
+            <span class="guide-desc">Doubles the value of all coins collected!</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-close-instructions" style="margin-top:8px;">GOT IT!</button>
+      </div>
+    </div>
+
+    <!-- 3. Pause Modal -->
+    <div class="screen-layer" id="pause-screen">
+      <div class="modal-card" style="max-width:320px; align-items:center;">
+        <h2 class="modal-title">PAUSED</h2>
+        <div style="display:flex; flex-direction:column; gap:12px; width:100%; margin-top:8px;">
+          <button class="btn-primary" id="btn-resume">RESUME</button>
+          <button class="btn-secondary" id="btn-pause-restart">RESTART</button>
+          <button class="btn-secondary" id="btn-pause-home">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Game Over Screen -->
+    <section class="screen-layer" id="game-over-screen">
+      <div class="game-over-card">
+        <h2 class="over-title">CRASHED!</h2>
+        
+        <div class="new-record-badge" id="game-over-record">
+          <span>⭐ NEW HIGH SCORE! ⭐</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box highlight">
+            <span class="stat-label">Final Score</span>
+            <span class="stat-value" id="over-score">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Best Record</span>
+            <span class="stat-value" id="over-best">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Coins Picked</span>
+            <span class="stat-value" id="over-coins">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Level Reached</span>
+            <span class="stat-value" id="over-level">1</span>
+          </div>
+        </div>
+
+        <div class="game-over-actions">
+          <button class="btn-primary" id="btn-play-again">
+            <span>PLAY AGAIN</span>
+            <svg style="width:20px;height:20px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+          </button>
+          <button class="btn-secondary" id="btn-over-home">
+            <span>HOME MENU</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Procedural Web Audio Engine & Game Engine Scripts -->
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
