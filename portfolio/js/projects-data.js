@@ -7,7 +7,7 @@
 const PORTFOLIO_DATA = {
   profile: {
     name: "Tulip Dahiya",
-    title: "B.Tech Computer Science Student & Aspiring Software Developer",
+    title: "B.Tech Computer Science (AI & ML) Student & Aspiring Software Developer",
     email: "dahiyatulip20@gmail.com",
     phone: "+91 8348342862",
     github: "https://github.com/8348-eng",

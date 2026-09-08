@@ -4,7 +4,7 @@
 [![Profile](https://img.shields.io/badge/Developer-Tulip%20Dahiya-06b6d4?style=for-the-badge)](https://github.com/8348-eng)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077b5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/tulip-dahiya-3201173b2/)
 
-> A modern, polished, and developer-focused personal portfolio website engineered for **Tulip Dahiya** (B.Tech Computer Science Student & Aspiring Software Developer).
+> A modern, polished, and developer-focused personal portfolio website engineered for **Tulip Dahiya** (B.Tech Computer Science (AI & ML) Student & Aspiring Software Developer).
 
 ---
 
